@@ -35,18 +35,17 @@ def switchy_main(net):
     contents = open('./middlebox_params.txt',"r")
     for line in contents.readlines():
         value = line.split()
-        s = int(value[1])
-        prob = int(value[3])
-        dm = int(value[5])
-        dstd = int(value[7])
-        rt = float(value[9])
+        s = int(value[1])    #random seed
+        prob = int(value[3]) #probability of drop packet
+        dm = int(value[5])   #mean delay time
+        dstd = int(value[7]) #mean standard deviation
 
     random.seed(s) #Extract random seed from params file
 
     while True:
         gotpkt = True
         try:
-            _,dev,pkt = net.recv_packet(timeout=rt/1000.0)
+            _,dev,pkt = net.recv_packet()
             log_debug("Device is {}".format(dev))
         except NoPackets:
             log_debug("No packets available in recv_packet")

@@ -70,9 +70,9 @@ def main(net):
     min_rtt = None
     max_rtt = None
     while True:
+        # packet transmission completed
         if rhs > total_packet_to_blast and lhs == rhs:
             print_output(metrics_last_ack_time-metrics_first_sent_time, num_ret, num_tos, num_payload/(metrics_last_ack_time-metrics_first_sent_time), (total_packet_to_blast*length_per_blast)/(metrics_last_ack_time-metrics_first_sent_time),estRTT,TO, min_rtt, max_rtt)
-            print("here")
             return
 
         for offset in range(rhs - lhs):
@@ -82,6 +82,7 @@ def main(net):
             if window_entry.ack:
                 continue 
             age_s = now - window_entry.ts_last
+            #timeout,retransmission
             if age_s*1000 > TO:
                 etp = Ethernet(src = intf.ethaddr,dst = target_ethaddr)
                 ip = IPv4(
@@ -106,8 +107,8 @@ def main(net):
                 num_ret += 1
                 num_tos += 1
                 log_info("Retransmitted seq {}.".format(seq))
-
         cnt = window_size - (rhs - lhs)
+        #window is not filled up
         if cnt > 0:
             for _ in range(cnt):
                 if rhs <= total_packet_to_blast:
@@ -141,7 +142,7 @@ def main(net):
         except Shutdown:
             log_debug("Got shutdown signal")
             break
-            
+        #recieve reply
         contents = pkt.get_header(RawPacketContents)
         if contents == None:
             log_debug('Ignored packet of unknown type')
